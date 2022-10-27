@@ -18,9 +18,9 @@ public:
 
     void Send(T value) {
         if (closed)
-            throw std::runtime_error;
+            throw std::runtime_error("Error");
         std::unique_lock<std::mutex> locker(lockSend);
-        readyToSend.wait(locker, [&]() { return channelQueue.size() < SIZE });
+        readyToSend.wait(locker, [&]() { return channelQueue.size() < SIZE; });
         channelQueue.push(value);
         readyToSend.notify_one();
     }
@@ -36,7 +36,7 @@ public:
                 return answer;
             }
         }
-        readyToRecv.wait(locker, [&]() { return !channelQueue.empty() });
+        readyToRecv.wait(locker, [&]() { return !channelQueue.empty(); });
         std::pair<T, bool> answer = std::make_pair(channelQueue.front(), true);
         channelQueue.pop();
         readyToRecv.notify_one();
